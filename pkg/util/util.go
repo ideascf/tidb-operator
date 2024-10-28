@@ -226,6 +226,15 @@ func TiDBServerTLSSecretName(tcName string) string {
 	return fmt.Sprintf("%s-tidb-server-secret", tcName)
 }
 
+func TiCDCClusterClientTLSCertSecretName(tc *v1alpha1.TidbCluster) string {
+	clusterClientTLSSecretName := ClusterClientTLSSecretName(tc.Name)
+	if tc.Spec.TiCDC.ClusterClientTLSSecretName != "" {
+		clusterClientTLSSecretName = tc.Spec.TiCDC.ClusterClientTLSSecretName
+	}
+
+	return clusterClientTLSSecretName
+}
+
 func TiDBAuthTokenJWKSSecretName(tcName string) string {
 	return fmt.Sprintf("%s-tidb-auth-token-jwks-secret", tcName)
 }

@@ -26,7 +26,8 @@ import (
 )
 
 type httpClient struct {
-	secretLister corelisterv1.SecretLister
+	secretLister                     corelisterv1.SecretLister
+	clusterClientTLSSecretNameGetter func(tc *v1alpha1.TidbCluster) string
 }
 
 func (c *httpClient) getHTTPClient(tc *v1alpha1.TidbCluster) (*http.Client, error) {
@@ -38,6 +39,9 @@ func (c *httpClient) getHTTPClient(tc *v1alpha1.TidbCluster) (*http.Client, erro
 	tcName := tc.Name
 	ns := tc.Namespace
 	secretName := util.ClusterClientTLSSecretName(tcName)
+	if c.clusterClientTLSSecretNameGetter != nil {
+		secretName = c.clusterClientTLSSecretNameGetter(tc)
+	}
 	secret, err := c.secretLister.Secrets(ns).Get(secretName)
 	if err != nil {
 		return nil, err

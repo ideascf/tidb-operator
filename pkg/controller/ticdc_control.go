@@ -22,6 +22,7 @@ import (
 	"strings"
 
 	"github.com/pingcap/tidb-operator/pkg/apis/pingcap/v1alpha1"
+	"github.com/pingcap/tidb-operator/pkg/util"
 	httputil "github.com/pingcap/tidb-operator/pkg/util/http"
 	corelisterv1 "k8s.io/client-go/listers/core/v1"
 	"k8s.io/klog/v2"
@@ -76,7 +77,14 @@ type defaultTiCDCControl struct {
 
 // NewDefaultTiCDCControl returns a defaultTiCDCControl instance
 func NewDefaultTiCDCControl(secretLister corelisterv1.SecretLister) *defaultTiCDCControl {
-	return &defaultTiCDCControl{httpClient: httpClient{secretLister: secretLister}}
+	return &defaultTiCDCControl{
+		httpClient: httpClient{
+			secretLister: secretLister,
+			clusterClientTLSSecretNameGetter: func(tc *v1alpha1.TidbCluster) string {
+				return util.TiCDCClusterClientTLSCertSecretName(tc)
+			},
+		},
+	}
 }
 
 func (c *defaultTiCDCControl) GetStatus(tc *v1alpha1.TidbCluster, ordinal int32) (*CaptureStatus, error) {
